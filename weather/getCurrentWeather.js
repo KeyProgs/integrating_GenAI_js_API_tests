@@ -1,8 +1,16 @@
 import fetch from "node-fetch";
 import { geoCode, kelvinToCelsius } from "./utils.js";
 
-export async function getCurrentWeather(location, unit = "celsius") {
+// Default export of the getCurrentWeather function
+export default async function getCurrentWeather(args) {
   try {
+    // Extract location and unit from args object
+    const { location, unit = "celsius" } = args;
+    
+    if (!location) {
+      throw new Error("Location is required");
+    }
+
     const loc = location.split(",")[0];
     const { lat, lon } = await geoCode(loc);
 
@@ -29,8 +37,8 @@ export async function getCurrentWeather(location, unit = "celsius") {
   }
 }
 
-// Optional: Tool definition if used in AI function calling
-export const getCurrentWeatherTool = {
+// Named export of the tool definition
+export const tool = {
   type: "function",
   function: {
     name: "get_current_weather",
