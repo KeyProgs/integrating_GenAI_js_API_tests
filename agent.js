@@ -6,6 +6,7 @@ import OpenAI from "openai";
 import { OPENAI_API_KEY } from "./config.js";
 import getCurrentWeather, { tool as weatherTool } from "./weather/getCurrentWeather.js";
 import getUsersInfo, { tool as githubTool } from "./github/getUsersInfo.js";
+// import getUsData, { tool as usTool } from "./us/usData.js";
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
@@ -14,6 +15,7 @@ const tools = [weatherTool, githubTool];
 const availableFunctions = {
   get_current_weather: getCurrentWeather,
   get_github_user_info: getUsersInfo,
+  // get_us_data: getUsData,
 };
 
 export async function runConversation(messages) {
