@@ -1,48 +1,64 @@
 // ===============================
 // File: utils.js
+// Description: Utility functions for fetching GitHub user information and weather data
 // ===============================
 import fetch from "node-fetch";
-import { WEATHER_API_KEY } from "./config.js";
 
-export function kelvinToCelsius(kelvin) {
-  return Math.round(kelvin - 273.15);
-}
-
-export async function geoCode(location) {
+/**
+ * Fetches GitHub user information for a given username
+ * @param {Array} [userName] - GitHub username to fetch information for
+ * @returns {string} JSON string containing user information
+ */
+export async function getUsersInfo([userName]) {
   try {
-    const response = await fetch(
-      `http://api.openweathermap.org/geo/1.0/direct?q=${location}&appid=${WEATHER_API_KEY}`
-    );
+    // Construct GitHub API URL
+    const url = `https://api.github.com/users/${userName}`;
+    console.log("GitHub API URL:", url);
+
+    // Fetch user data from GitHub API
+    const response = await fetch(url);
     const data = await response.json();
-    const lat = data[0]?.lat;
-    const lon = data[0]?.lon;
-    return { lat, lon };
+
+    // Extract relevant user information
+    const userInfo = {
+      login: data.login,
+      id: data.id,
+      name: data.name,
+      avatar_url: data.avatar_url,
+      html_url: data.html_url,
+      public_repos: data.public_repos,
+      followers: data.followers,
+      following: data.following,
+      location: data.location,
+      bio: data.bio,
+      twitter_username: data.twitter_username,
+      created_at: data.created_at,
+    };
+
+    return JSON.stringify(userInfo, null, 2);
   } catch (err) {
-    console.error("Error in geoCode:", err);
-    return {};
+    console.error("Error in getUsersInfo:", err);
+    return JSON.stringify({ error: "Failed to fetch user info." });
   }
 }
 
-export async function getCurrentWeather(location, unit) {
-  const loc = location.split(",")[0];
-  const { lat, lon } = await geoCode(loc);
-  if (!lat || !lon) return "Location not found.";
-
+/**
+ * Simulates fetching current weather information for a location
+ * Note: This is a mock implementation for testing purposes
+ * @param {Array} [location, unit] - Location name and temperature unit (celsius/fahrenheit)
+ * @returns {string} JSON string containing weather information
+ */
+export async function getCurrentWeather([location, unit]) {
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}`
-    );
-    const json = await response.json();
-
-    const weatherInfo = {
-      location: location,
-      temperature: kelvinToCelsius(json.main.temp),
-      unit: unit,
-      forecast: json.weather[0].description,
+    // Mock weather data for testing
+    const weather = {
+      location,
+      temperature: unit === "celsius" ? "22°C" : "72°F",
+      condition: "Partly cloudy",
     };
-    return JSON.stringify(weatherInfo);
-  } catch (error) {
-    console.error("Error in getCurrentWeather:", error);
-    return "Could not retrieve weather data.";
+    return JSON.stringify(weather, null, 2);
+  } catch (err) {
+    console.error("Error in getCurrentWeather:", err);
+    return JSON.stringify({ error: "Failed to fetch weather info." });
   }
 }
